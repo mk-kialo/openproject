@@ -157,9 +157,10 @@ module Redmine
         def typed_custom_value_for(c)
           cvs = custom_value_for(c)
 
-          if cvs.is_a? Array
+          case cvs
+          when Array
             cvs.map(&:typed_value)
-          elsif cvs.is_a? CustomValue
+          when CustomValue
             cvs.typed_value
           else
             cvs
@@ -169,9 +170,10 @@ module Redmine
         def formatted_custom_value_for(c)
           cvs = custom_value_for(c)
 
-          if cvs.is_a? Array
+          case cvs
+          when Array
             cvs.map(&:formatted_value)
-          elsif cvs.is_a? CustomValue
+          when CustomValue
             cvs.formatted_value
           else
             cvs
@@ -224,6 +226,14 @@ module Redmine
             .reject(&:marked_for_destruction?)
             .select(&:invalid?)
             .each { |custom_value| add_custom_value_errors! custom_value }
+        end
+
+        # Build the changes hash similar to ActiveRecord::Base#changes,
+        # but for the custom field values that have been changed.
+        def custom_field_changes
+          custom_field_values.select(&:changed?).reduce({}) do |cf_changes, cf|
+            cf_changes.merge("custom_field_#{cf.custom_field_id}": [cf.value_was, cf.value])
+          end
         end
 
         def add_custom_value_errors!(custom_value)
