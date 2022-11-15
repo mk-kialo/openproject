@@ -33,7 +33,6 @@ module I18nLazyLoading
   #
   # - +Redmine::I18n#all_attribute_translations+
   # - +Redmine::I18n#ll+
-  # - +Redmine::I18n#set_language_if_valid+
   module RedmineI18nPatch
     def all_attribute_translations(locale)
       I18nLazyLoading.load_locale(locale)
@@ -44,25 +43,12 @@ module I18nLazyLoading
       I18nLazyLoading.load_locale(lang)
       super
     end
-
-    def set_language_if_valid(lang)
-      if locale = find_language(lang)
-        I18nLazyLoading.load_locale(locale)
-      end
-      super
-    end
   end
 
   # Load additional locales when calling:
   #
-  # - +I18n.with_locale+
   # - +I18n.locale=+
   module I18nPatch
-    def with_locale(locale)
-      I18nLazyLoading.load_locale(locale)
-      super
-    end
-
     def locale=(locale)
       I18nLazyLoading.load_locale(locale)
       super
