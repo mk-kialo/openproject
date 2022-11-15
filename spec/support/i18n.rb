@@ -30,9 +30,16 @@
 # loaded.
 #
 # Additional locales are lazily loaded when:
+# - +Redmine::I18n#all_attribute_translations+ is called
 # - +Redmine::I18n#set_language_if_valid+ is called
 # - +I18n.with_locale+ is called
 module I18nLazyLoadingPatch
+  # overrides Redmine::I18n#all_attribute_translations
+  def all_attribute_translations(locale)
+    I18nLazyLoadingPatch.load_locale(locale.to_sym)
+    super
+  end
+
   # overrides Redmine::I18n#set_language_if_valid
   def set_language_if_valid(lang)
     if locale = find_language(lang)
