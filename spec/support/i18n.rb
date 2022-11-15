@@ -28,37 +28,45 @@
 
 # Restricts loaded locales to :en to avoid a 2-seconds penalty when locales are
 # loaded.
-#
-# Additional locales are lazily loaded when:
-# - +Redmine::I18n#all_attribute_translations+ is called
-# - +Redmine::I18n#ll+ is called
-# - +Redmine::I18n#set_language_if_valid+ is called
-# - +I18n.with_locale+ is called
-module I18nLazyLoadingPatch
-  # overrides Redmine::I18n
-  def all_attribute_translations(locale)
-    I18nLazyLoadingPatch.load_locale(locale)
-    super
-  end
-
-  # overrides Redmine::I18n
-  def ll(lang, _str, _value = nil)
-    I18nLazyLoadingPatch.load_locale(lang)
-    super
-  end
-
-  # overrides Redmine::I18n
-  def set_language_if_valid(lang)
-    if locale = find_language(lang)
-      I18nLazyLoadingPatch.load_locale(locale)
+module I18nLazyLoading
+  # Load additional locales when calling:
+  #
+  # - +Redmine::I18n#all_attribute_translations+
+  # - +Redmine::I18n#ll+
+  # - +Redmine::I18n#set_language_if_valid+
+  module RedmineI18nPatch
+    def all_attribute_translations(locale)
+      I18nLazyLoading.load_locale(locale)
+      super
     end
-    super
+
+    def ll(lang, _str, _value = nil)
+      I18nLazyLoading.load_locale(lang)
+      super
+    end
+
+    def set_language_if_valid(lang)
+      if locale = find_language(lang)
+        I18nLazyLoading.load_locale(locale)
+      end
+      super
+    end
   end
 
-  # overrides I18n
-  def with_locale(locale)
-    I18nLazyLoadingPatch.load_locale(locale)
-    super
+  # Load additional locales when calling:
+  #
+  # - +I18n.with_locale+
+  # - +I18n.locale=+
+  module I18nPatch
+    def with_locale(locale)
+      I18nLazyLoading.load_locale(locale)
+      super
+    end
+
+    def locale=(locale)
+      I18nLazyLoading.load_locale(locale)
+      super
+    end
   end
 
   def self.install
@@ -66,10 +74,10 @@ module I18nLazyLoadingPatch
     @@original_load_path = I18n.config.load_path.dup
     # restrict available locales to :en
     I18n.config.load_path = load_path(:en)
-    # Hook into Redmine::I18n
-    Redmine::I18n.prepend(self)
-    # Hook into I18n
-    I18n.singleton_class.prepend(self)
+
+    # patch to load locales on demand
+    Redmine::I18n.prepend(RedmineI18nPatch)
+    I18n.singleton_class.prepend(I18nPatch)
   end
 
   def self.load_locale(locale)
@@ -87,5 +95,5 @@ module I18nLazyLoadingPatch
 end
 
 RSpec.configure do
-  I18nLazyLoadingPatch.install
+  I18nLazyLoading.install
 end
