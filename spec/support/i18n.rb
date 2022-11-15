@@ -29,8 +29,9 @@
 # Restricts loaded locales to :en to avoid a 2-seconds penalty when locales are
 # loaded.
 #
-# Additional locales are lazily loaded when
-# +Redmine::I18n#set_language_if_valid+ is called
+# Additional locales are lazily loaded when:
+# - +Redmine::I18n#set_language_if_valid+ is called
+# - +I18n.with_locale+ is called
 module I18nLazyLoadingPatch
   # overrides Redmine::I18n#set_language_if_valid
   def set_language_if_valid(lang)
@@ -40,13 +41,21 @@ module I18nLazyLoadingPatch
     end
   end
 
+  # overrides I18n.with_locale
+  def with_locale(locale)
+    I18nLazyLoadingPatch.load_locale(locale)
+    super
+  end
+
   def self.install
     # copy original I18n load path
     @@original_load_path = I18n.config.load_path.dup
     # restrict available locales to :en
     I18n.config.load_path = load_path(:en)
-    # Hook into Redmine::I18n to load new locales when needed
+    # Hook into Redmine::I18n
     Redmine::I18n.prepend(self)
+    # Hook into I18n
+    I18n.singleton_class.prepend(self)
   end
 
   def self.load_locale(locale)
