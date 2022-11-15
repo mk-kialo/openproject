@@ -73,6 +73,8 @@ module I18nLazyLoadingPatch
   end
 
   def self.load_locale(locale)
+    return if locale.nil?
+
     locale = locale.to_sym
     return if ::I18n.config.available_locales_set.include?(locale)
 
