@@ -59,6 +59,7 @@ module I18nLazyLoadingPatch
     @@original_load_path = I18n.config.load_path.dup
     # restrict available locales to :en
     I18n.config.load_path = load_path(:en)
+    Setting.available_languages = ["en"]
     # Hook into Redmine::I18n
     Redmine::I18n.prepend(self)
     # Hook into I18n
@@ -70,6 +71,7 @@ module I18nLazyLoadingPatch
 
     I18n.backend.load_translations(load_path(locale))
     I18n.config.clear_available_locales_set
+    Setting.available_languages = ::I18n.config.available_locales_set.map(&:to_s).uniq
   end
 
   def self.load_path(locale)
