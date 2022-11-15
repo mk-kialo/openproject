@@ -31,24 +31,31 @@
 #
 # Additional locales are lazily loaded when:
 # - +Redmine::I18n#all_attribute_translations+ is called
+# - +Redmine::I18n#ll+ is called
 # - +Redmine::I18n#set_language_if_valid+ is called
 # - +I18n.with_locale+ is called
 module I18nLazyLoadingPatch
-  # overrides Redmine::I18n#all_attribute_translations
+  # overrides Redmine::I18n
   def all_attribute_translations(locale)
-    I18nLazyLoadingPatch.load_locale(locale.to_sym)
+    I18nLazyLoadingPatch.load_locale(locale)
     super
   end
 
-  # overrides Redmine::I18n#set_language_if_valid
+  # overrides Redmine::I18n
+  def ll(lang, _str, _value = nil)
+    I18nLazyLoadingPatch.load_locale(lang)
+    super
+  end
+
+  # overrides Redmine::I18n
   def set_language_if_valid(lang)
     if locale = find_language(lang)
       I18nLazyLoadingPatch.load_locale(locale)
-      super
     end
+    super
   end
 
-  # overrides I18n.with_locale
+  # overrides I18n
   def with_locale(locale)
     I18nLazyLoadingPatch.load_locale(locale)
     super
@@ -59,7 +66,6 @@ module I18nLazyLoadingPatch
     @@original_load_path = I18n.config.load_path.dup
     # restrict available locales to :en
     I18n.config.load_path = load_path(:en)
-    Setting.available_languages = ["en"]
     # Hook into Redmine::I18n
     Redmine::I18n.prepend(self)
     # Hook into I18n
@@ -67,11 +73,11 @@ module I18nLazyLoadingPatch
   end
 
   def self.load_locale(locale)
+    locale = locale.to_sym
     return if ::I18n.config.available_locales_set.include?(locale)
 
     I18n.backend.load_translations(load_path(locale))
     I18n.config.clear_available_locales_set
-    Setting.available_languages = ::I18n.config.available_locales_set.map(&:to_s).uniq
   end
 
   def self.load_path(locale)
