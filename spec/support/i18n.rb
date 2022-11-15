@@ -74,8 +74,6 @@ module I18nLazyLoadingPatch
 
   def self.load_locale(locale)
     return if locale.nil?
-
-    locale = locale.to_sym
     return if ::I18n.config.available_locales_set.include?(locale)
 
     I18n.backend.load_translations(load_path(locale))
@@ -83,7 +81,7 @@ module I18nLazyLoadingPatch
   end
 
   def self.load_path(locale)
-    file_regex = /#{locale}\.(rb|yml)$/
+    file_regex = /\/#{locale}[.a-z]+$/i
     @@original_load_path.grep(file_regex)
   end
 end
