@@ -81,7 +81,7 @@ module I18nLazyLoadingPatch
   end
 
   def self.load_path(locale)
-    file_regex = /\/#{locale}[.a-z]+$/i
+    file_regex = /\/(js-)?#{locale}[.a-z]+$/i
     @@original_load_path.grep(file_regex)
   end
 end
