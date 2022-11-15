@@ -48,6 +48,7 @@ module I18nLazyLoading
   # Load additional locales when calling:
   #
   # - +I18n.locale=+
+  # - +Stringex::Localization.locale=+
   module I18nPatch
     def locale=(locale)
       I18nLazyLoading.load_locale(locale)
@@ -64,6 +65,7 @@ module I18nLazyLoading
     # patch to load locales on demand
     Redmine::I18n.prepend(RedmineI18nPatch)
     I18n.singleton_class.prepend(I18nPatch)
+    Stringex::Localization.singleton_class.prepend(I18nPatch)
   end
 
   def self.load_locale(locale)
