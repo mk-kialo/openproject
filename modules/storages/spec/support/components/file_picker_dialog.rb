@@ -42,12 +42,16 @@ module Components
 
     def confirm_button_state(selection_count:)
       page.within(container) do
-        if selection_count > 0
-          expect(page).to have_button(disabled: false,
-                                      exact_text: I18n.t('js.storages.file_links.selection_any', number: selection_count))
-        else
+        case selection_count
+        when 0
           expect(page).to have_button(disabled: true,
                                       exact_text: I18n.t('js.storages.file_links.selection_none'))
+        when 1
+          expect(page).to have_button(disabled: true,
+                                      exact_text: I18n.t('js.storages.file_links.selection_one'))
+        else
+          expect(page).to have_button(disabled: false,
+                                      exact_text: I18n.t('js.storages.file_links.selection_any', number: selection_count))
         end
       end
     end
