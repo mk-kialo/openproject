@@ -71,7 +71,16 @@ export class FilePickerModalComponent extends OpModalComponent implements OnInit
     header: this.i18n.t('js.storages.file_links.select'),
     buttons: {
       openStorage: ():string => this.i18n.t('js.storages.open_storage', { storageType: this.locals.storageTypeName as string }),
-      submit: ():string => this.i18n.t('js.storages.file_links.selection_any', { number: this.selectedFileCount }),
+      submit: (count:number):string => {
+        switch (count) {
+          case 0:
+            return this.i18n.t('js.storages.file_links.selection_none');
+          case 1:
+            return this.i18n.t('js.storages.file_links.selection_one');
+          default:
+            return this.i18n.t('js.storages.file_links.selection_any', { number: count });
+        }
+      },
       submitEmptySelection: this.i18n.t('js.storages.file_links.selection_none'),
       cancel: this.i18n.t('js.button_cancel'),
       selectAll: this.i18n.t('js.storages.file_links.select_all'),

@@ -36,6 +36,7 @@ en:
         select: "Select files"
         select_all: "Select all"
         selection_none: "Select files to link"
+        selection_one: "Link 1 file"
         selection_any: "Link %{number} files"
         not_allowed_tooltip: "Please log in to Nextcloud to access this file"
         already_linked_file: "This file is already linked to this work package."
