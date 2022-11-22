@@ -1,4 +1,4 @@
-# Kialo Project Management Software
+# Kialo Project Coordination Software
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/opf/openproject)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/opf/openproject)
